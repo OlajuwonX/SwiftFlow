@@ -2,7 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from '@/app/redux';
 import { Briefcase, Home, Icon, LockIcon, LucideIcon, Search, Settings, Users, User, X, ChevronUp, ChevronDown, AlertCircle, ShieldAlert, AlertTriangle, AlertOctagon, Layers3 } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { setSidebarCollapsed } from '@/State/Index';
@@ -18,10 +18,32 @@ const Index = () => {
      (state) => state.global.sidebarCollapsed,
  );
 
+const sidebarRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        dispatch(setSidebarCollapsed(true));
+      }
+    };
+
+    if (!sidebarCollapsed) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sidebarCollapsed, dispatch]);
+
+
  const sidebarClassNames = `fixed flex flex-col h-[100%] justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-gray-900 overflow-y-auto bg-white ${sidebarCollapsed ? "w-0 hidden" : "w-64"}`;
 
   return (
-    <div className={sidebarClassNames}>
+    <div className={sidebarClassNames} ref={sidebarRef}>
         <div className='flex h-[100%] w-full flex-col justify-start'>
            {/* Top Logo */}
             <div className='z-50 flex min-h-[56px] w-64 items-center justify-between bg-white px-6 pt-3 dark:bg-gray-900'>
@@ -148,7 +170,7 @@ const SidebarLink = ({
 
     return (
         <Link href={href} className='w-full'>
-        <div className={`relative flex cursor-pointer items-centr gap-3 transition-colors hover:bg-teal-200 dark:bg-black dark:hover:bg-gray-900 ${
+        <div className={`relative flex cursor-pointer items-center gap-3 transition-colors hover:bg-teal-200 dark:bg-black dark:hover:bg-gray-900 ${
             isActive ? 'bg-teal-100 text-white dark:bg-gray-700 hover:bg-teal-200 ' : ""
         } justify-start py-3 px-8 `}>
                 {isActive && (
