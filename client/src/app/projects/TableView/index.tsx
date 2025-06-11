@@ -3,6 +3,7 @@ import Header from '@/Components/Header';
 import { useGetTasksQuery } from '@/State/api';
 import React from 'react'
 import {DataGrid} from "@mui/x-data-grid"
+import { dataGridClassNames, dataGridSxStyles } from '@/lib/utils';
 
 type Props = {
     id: string;
@@ -23,7 +24,12 @@ type Props = {
   {
     field: "status",
     headerName: "Status",
-    width: 130
+    width: 130,
+    renderCell: (params) => (
+      <span className='inline-flex rounded-full bg-green-200 px-2 text-xs font-semibold leading-5 text-green-900'>
+        {params.value}
+      </span>
+    )
   },
   {
     field: "priority",
@@ -49,15 +55,15 @@ type Props = {
     field: "author",
     headerName: "Author",
     width: 150,
-    renderCell: (params) => params.value.username || "Unknown",
+    renderCell: (params) => params.value?.author || "Unknown",
   },
   {
     field: "assignee",
     headerName: "Assignee",
     width: 150,
-    renderCell: (params) => params.value.username || "Unassigned"
+    renderCell: (params) => params.value?.assignee || "Unassigned"
   }
- ]
+ ];
 
 const TableView = ({id, setIsModalNewTaskOpen}: Props) => {
   
@@ -75,11 +81,18 @@ const TableView = ({id, setIsModalNewTaskOpen}: Props) => {
   return (
     <div className='h-[540px]  w-full px-4 pb-6 xl:px-6 '>
       <div className='pt-5'>
-        <Header name='Table' isSmallText />
+        <Header name='Table' buttonComponent={<button className='flex items-center bg-blue-500 px-3 py-2 text-white hover:bg-blue-600 rounded-md'
+        onClick={() => setIsModalNewTaskOpen(true)}>
+          Add Task
+        </button>
+        }
+        isSmallText />
       </div>
       <DataGrid 
       rows={tasks || []}
       columns={columns}
+      className={dataGridClassNames}
+      sx={dataGridSxStyles(isDarkMode)}
       />
     </div>
   )
